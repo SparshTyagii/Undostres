@@ -19,7 +19,7 @@ public class HomePage extends Reusables {
 	@FindBy(xpath = "//b[text()='Telcel']")
 	private WebElement operadorTelcel;
 
-	@FindBy(xpath = "//div[text()='Recarga $10']")
+	@FindBy(xpath = "//*[text()='$10']")
 	private WebElement montoDeRecarga10Dollar;
 
 	@FindBy(xpath = "(//button[@class='button buttonRecharge'])[1]")

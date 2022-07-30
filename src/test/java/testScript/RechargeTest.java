@@ -14,6 +14,7 @@ public class RechargeTest extends Reusables {
 
 	@BeforeSuite
 	public void beforeSuite() throws Exception {
+		browserLaunch();
 		extentSetup();
 	}
 
@@ -21,8 +22,6 @@ public class RechargeTest extends Reusables {
 	public void homePage() throws Exception {
 
 		test = extentCreateTest("Home Page");
-
-		browserLaunch();
 
 		HomePage h = new HomePage(driver);
 
@@ -64,9 +63,9 @@ public class RechargeTest extends Reusables {
 		click(p.acceso(), "Acceso");
 
 		if (p.acceso().isDisplayed())
-			test.info("Payment Confirmation Screen is not Appearing due to captcha");
+			test.fail("<b><i>Payment Confirmation Screen is not Appearing due to captcha</b></i>",extentScreenshot());
 		else
-			test.info("RechargeTest Successful");
+			test.pass("<b><i>RechargeTest Successful</b></i>",extentScreenshot());
 	}
 
 	@AfterSuite

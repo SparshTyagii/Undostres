@@ -6,14 +6,22 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Properties;
+
+import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.MediaEntityBuilder;
+import com.aventstack.extentreports.model.Media;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import com.aventstack.extentreports.reporter.configuration.Theme;
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -80,7 +88,8 @@ public class Reusables {
 				driver = WebDriverManager.edgedriver().capabilities(options).create();
 			}
 
-			test.pass("Browser Launched Successfully : " + browserName + " with value : " + browserURL);
+			// test.pass("Browser Launched Successfully : " + browserName + " with value : "
+			// + browserURL);
 
 			driver.manage().window().maximize();
 			driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
@@ -88,7 +97,8 @@ public class Reusables {
 		}
 
 		catch (Exception e) {
-			test.fail("Exception in launching browser : " + browserName + " with value : " + browserURL);
+			// test.fail("Exception in launching browser : " + browserName + " with value :
+			// " + browserURL);
 		}
 
 		return driver;
@@ -101,7 +111,8 @@ public class Reusables {
 		} catch (Exception e) {
 			((JavascriptExecutor) driver).executeScript("arguments[0].value='" + keysToSend + "'", element);
 		}
-		test.pass("Typed in : " + fieldName + " successfully with value : " + keysToSend);
+		test.pass("<b><i>Typed in : " + fieldName + " successfully with value : " + keysToSend+"/b></i>",
+				extentScreenshot());
 	}
 
 	public void click(WebElement element, String fieldName) {
@@ -111,7 +122,7 @@ public class Reusables {
 		} catch (Exception e) {
 			((JavascriptExecutor) driver).executeScript("arguments[0].click()", element);
 		}
-		test.pass("Clicked on : " + fieldName + " successfully");
+		test.pass("<b><i>Clicked on : " + fieldName + " successfully</b></i>", extentScreenshot());
 	}
 
 	public void verifyText(WebElement element, String expectedResult) {
@@ -120,12 +131,13 @@ public class Reusables {
 			String actualResult = element.getText();
 
 			if (actualResult.equals(expectedResult))
-				test.pass("Text is Verified successfully Actual is : " + actualResult + " and Expected is : "
-						+ expectedResult);
+				test.pass("<b><i>Text is Verified successfully Actual is : " + actualResult
+						+ " and Expected is : " + expectedResult+"/b></i>", extentScreenshot());
 			else
-				test.fail("Text is not Verified Actual is : " + actualResult + " and Expected is : " + expectedResult);
+				test.fail("<b><i>Text is not Verified Actual is : " + actualResult + " and Expected is : </b></i>"
+						+ expectedResult, extentScreenshot());
 		} catch (Exception e) {
-			test.fail("Exception in verifying the text");
+			test.fail("<b><i>Exception in verifying the text</b></i>", extentScreenshot());
 		}
 	}
 
@@ -133,9 +145,9 @@ public class Reusables {
 
 		try {
 			driver.switchTo().frame(element);
-			test.pass("Switched to frame : " + fieldName);
+			test.pass("<b><i>Switched to frame : </b></i>" + fieldName, extentScreenshot());
 		} catch (Exception e) {
-			test.fail("Exception in switching to frame : " + fieldName);
+			test.fail("<b><i>Exception in switching to frame : " + fieldName+"</b></i>", extentScreenshot());
 		}
 	}
 
@@ -143,9 +155,9 @@ public class Reusables {
 
 		try {
 			driver.switchTo().parentFrame();
-			test.pass("Switched to Parent Frame Successfully");
+			test.pass("<b><i>Switched to Parent Frame Successfully</b></i>", extentScreenshot());
 		} catch (Exception e) {
-			test.fail("Exception in switching to parent frame");
+			test.fail("<b><i>Exception in switching to parent frame</b></i>", extentScreenshot());
 		}
 	}
 
@@ -153,19 +165,22 @@ public class Reusables {
 
 		try {
 			((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView()", element);
-			test.pass("Scrolled to Element : " + fieldName + " successfully");
+			test.pass("<b><i>Scrolled to Element : " + fieldName + " successfully</b></i>",
+					extentScreenshot());
 		} catch (Exception e) {
-			test.fail("Exception in scrolling to element : " + fieldName);
+			test.fail("<b><i>Exception in scrolling to element : " + fieldName+"</b></i>", extentScreenshot());
 		}
 	}
 
 	public ExtentReports extentSetup() {
 
-		String reportPath = System.getProperty("user.dir") + "//reports//report.html";
+		String reportPath = ".//reports//report.html";
 		ExtentSparkReporter reporter = new ExtentSparkReporter(reportPath);
 		reporter.config().setReportName("Undostres Reports");
-		reporter.config().setDocumentTitle("Undostres Reports");
+		reporter.config().setDocumentTitle("Undostres Document");
 		reporter.config().setTheme(Theme.STANDARD);
+
+		Capabilities capabilities = ((RemoteWebDriver) driver).getCapabilities();
 
 		extent = new ExtentReports();
 		extent.attachReporter(reporter);
@@ -173,6 +188,8 @@ public class Reusables {
 		extent.setSystemInfo("Operating System", System.getProperty("os.name"));
 		extent.setSystemInfo("Operating System Version", System.getProperty("os.version"));
 		extent.setSystemInfo("Java Version", System.getProperty("java.version"));
+		extent.setSystemInfo("Browser", capabilities.getBrowserName());
+		extent.setSystemInfo("Browser Version", capabilities.getBrowserVersion());
 
 		return extent;
 
@@ -191,6 +208,17 @@ public class Reusables {
 
 	public static void extentReportOpen() throws IOException {
 		Desktop.getDesktop().browse(new File(System.getProperty("user.dir") + "//reports//report.html").toURI());
+	}
+
+	public String takeScreenshot() {
+
+		String source = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BASE64);
+		return source;
+	}
+
+	public Media extentScreenshot() {
+		Media media = MediaEntityBuilder.createScreenCaptureFromBase64String(takeScreenshot()).build();
+		return media;
 	}
 
 }
